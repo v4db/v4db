@@ -135,4 +135,4 @@ const resolvers = {
 };
 
 const server = new ApolloServer({ typeDefs, resolvers, });
-server.listen();
+server.listen({ port: process.env.PORT || 4000 });
