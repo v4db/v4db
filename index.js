@@ -75,12 +75,19 @@ const EventsEnum = {
 }
 
 const typeDefs = gql`
+    type Icon {
+        name: String
+        slant: Int
+        color: String
+    }
+
     type Creature {
         _id: ID
         name: String
         refresh_rate: Int
         died_time: Int
         reborn_time: Int
+        icon: Icon
     }
 
     type Query {
