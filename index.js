@@ -65,14 +65,8 @@
 
 // app.listen(PORT);
 
-const { ApolloServer, gql, PubSub, } = require(`apollo-server`);
-const { getCollection, ObjectID, } = require(`./db`);
-
-const pubsub = new PubSub();
-
-const EventsEnum = {
-    DIED_TIME_UPDATED: `DIED_TIME_UPDATED`,
-}
+const { ApolloServer, gql, } = require(`apollo-server`);
+const { collections, ObjectID, } = require(`./db`);
 
 const typeDefs = gql`
     type Icon {
@@ -85,21 +79,24 @@ const typeDefs = gql`
         _id: ID
         name: String
         refresh_rate: Int
-        died_time: Int
         reborn_time: Int
         icon: Icon
+        typeId: String
+    }
+
+    type CreatureType {
+        _id: ID
+        name: String
+        color: String
     }
 
     type Query {
         creatures: [Creature]
+        types: [CreatureType]
     }
 
     type Mutation {
         updateDiedTime(input: UpdateDiedTimeInput): Creature
-    }
-
-    type Subscription {
-        diedTimeUpdated: Creature
     }
 
     input UpdateDiedTimeInput {
@@ -112,14 +109,18 @@ const typeDefs = gql`
 const resolvers = {
     Query: {
         creatures: async () => {
-            const collection = await getCollection();
+            const collection = await collections.creature;
+            return collection.find({}).toArray();
+        },
+        types: async () => {
+            const collection = await collections.type;
             return collection.find({}).toArray();
         },
     },
     Mutation: {
         updateDiedTime: async (_, args) => {
             let { input, } = args;
-            const collection = await getCollection();
+            const collection = await collections.creature;
             input._id = new ObjectID(input._id);
 
             console.log(input);
@@ -128,15 +129,7 @@ const resolvers = {
             const set = { $set: input }
             await collection.updateOne(query, set);
 
-            const result = await collection.findOne(query);
-            pubsub.publish(EventsEnum.DIED_TIME_UPDATED, { diedTimeUpdated: result });
-
-            return result;
-        },
-    },
-    Subscription: {
-        diedTimeUpdated: {
-            subscribe: () => pubsub.asyncIterator([ EventsEnum.DIED_TIME_UPDATED ]),
+            return await collection.findOne(query);
         },
     },
 };
