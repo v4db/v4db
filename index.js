@@ -79,6 +79,7 @@ const typeDefs = gql`
         _id: ID
         name: String
         refresh_rate: Int
+        died_time: Int
         reborn_time: Int
         icon: Icon
         typeId: String
