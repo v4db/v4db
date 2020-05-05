@@ -79,11 +79,11 @@ const typeDefs = gql`
         _id: ID
         name: String
         refresh_rate: Int
-        died_time: Int
         reborn_time: Int
         icon: Icon
         typeId: String
         type: CreatureType
+        patch_time: Int
     }
 
     type CreatureType {
@@ -105,6 +105,7 @@ const typeDefs = gql`
         _id: ID
         died_time: Int
         reborn_time: Int
+        is_patch: Int
     }
 `;
 
@@ -132,11 +133,18 @@ const resolvers = {
             let { input, } = args;
             const collection = await collections.creature;
             input._id = new ObjectID(input._id);
+            const inc = null;
 
-            console.log(input);
+            if(input.is_patch) {
+                inc = { patch_time: 1, };
+            } else {
+                input.patch_time = 0;
+            }
+
+            delete input.is_patch;
 
             const query = { _id: input._id }
-            const set = { $set: input }
+            const set = { $set: input, $inc: inc, }
             await collection.updateOne(query, set);
 
             return await collection.findOne(query);
