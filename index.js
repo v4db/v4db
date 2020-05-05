@@ -144,7 +144,9 @@ const resolvers = {
             delete input.is_patch;
 
             const query = { _id: input._id }
-            const set = { $set: input, $inc: inc, }
+            let set = { $set: input, }
+            if(inc)
+                set.$inc = inc;
             await collection.updateOne(query, set);
 
             return await collection.findOne(query);
