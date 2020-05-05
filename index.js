@@ -133,7 +133,7 @@ const resolvers = {
             let { input, } = args;
             const collection = await collections.creature;
             input._id = new ObjectID(input._id);
-            const inc = null;
+            let inc = null;
 
             if(input.is_patch) {
                 inc = { patch_time: 1, };
