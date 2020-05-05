@@ -83,6 +83,7 @@ const typeDefs = gql`
         reborn_time: Int
         icon: Icon
         typeId: String
+        type: CreatureType
     }
 
     type CreatureType {
@@ -108,6 +109,14 @@ const typeDefs = gql`
 `;
 
 const resolvers = {
+    Creature: {
+        type: async (parent) => {
+            console.log(parent);
+            const query = { _id: new ObjectID(parent.typeId), };
+            const collection = await collections.type;
+            return collection.findOne(query);
+        },
+    },
     Query: {
         creatures: async () => {
             const collection = await collections.creature;
